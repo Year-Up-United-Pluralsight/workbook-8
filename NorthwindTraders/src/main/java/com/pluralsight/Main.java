@@ -1,5 +1,7 @@
 package com.pluralsight;
 
+import com.mysql.cj.x.protobuf.MysqlxPrepare;
+
 import java.sql.Connection;
 import java.sql.*;
 import java.util.Scanner;
@@ -12,8 +14,9 @@ public class Main {
                 What do you want to do?
                    1) Display all products
                    2) Display all customers
+                   3) Display all categories
                    0) Exit
-                Select an option:\s""");
+                Select an option ➤\s""");
 
         Scanner scanner = new Scanner(System.in);
         int userChoice = scanner.nextInt();
@@ -34,7 +37,6 @@ public class Main {
         String password = args[1];
 
         // Establish variables with null outside try block
-        Connection connection = null;
         ResultSet resultSet = null;
         PreparedStatement preparedStatement = null;
 
@@ -42,13 +44,56 @@ public class Main {
             // Loads the MySQL Driver
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-            // 1. Opens Connection to Database (uses the database URL to point to the correct database)
-            connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/northwind", username, password);
+            try (
+                // 1. Opens Connection to Database (uses the database URL to point to the correct database)
+                Connection connection = DriverManager.getConnection(
+                        "jdbc:mysql://localhost:3306/northwind", username, password);
+            )
+            {
+
+
+                try (
+                    PreparedStatement statement1;
+                    ResultSet resultSet1 = statement1.execute();
+
+                )
+                {
+                    // while
+                }
+
+                System.out.print("Please enter an employee name to search by ➤ ");
+
+                try (
+                    PreparedStatement statement2;
+                )
+                {
+                    // set parameter on statement
+
+                    try (
+                        Resultset resultSet = statement2.executeQuery();
+                    )
+                    {
+                        // while
+                    }
+                }
+
+            }
+
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
 
             if (userChoice == 1) {
+
                 // 2. Create preparedStatement for query
-                // the statement is tied to the open connection
                 preparedStatement = connection.prepareStatement(
                         "SELECT ProductID, ProductName, UnitPrice, UnitsInStock FROM Products"
                 );
@@ -72,8 +117,8 @@ public class Main {
                 }
 
             } else if (userChoice == 2) {
+
                 // 2. Create preparedStatement for query
-                // the statement is tied to the open connection
                 preparedStatement = connection.prepareStatement(
                         "SELECT ContactName, CompanyName, City, Country, Phone " +
                                 "FROM Customers " +
@@ -98,7 +143,52 @@ public class Main {
 
                     System.out.printf("%-27s %-35s %-21s %-14s %-10s%n", contactName, companyName, city, country, phone);
                 }
-            } else {
+            }
+
+            else if (userChoice == 3) {
+
+                // 2. Create preparedStatement for query
+                preparedStatement = connection.prepareStatement(
+                        "SELECT CategoryID, CategoryName " +
+                                "FROM Categories " +
+                                "ORDER BY CategoryID"
+                );
+
+                System.out.print("Which category ID would you like to view? ➤ ");
+                int userIDinput = scanner.nextInt();
+                scanner.nextLine();
+
+                // 2. Again, create preparedStatement for another query
+                preparedStatement = connection.prepareStatement(
+                        "SELECT ProductID, ProductName, UnitPrice, UnitsInStock " +
+                                "FROM Products " +
+                                "WHERE CategoryID = ?"
+                );
+
+                preparedStatement.setString(1, userIDinput);
+
+                // 3. Execute your query
+                resultSet = preparedStatement.executeQuery();
+
+                // Print header
+                System.out.printf("%-27s %-35s %-21s %-14s%n", "ProductID", "ProductName", "UnitPrice", "UnitsInStock");
+                System.out.println("-------------------------------------------------------------------------------------------------------------------------");
+
+                // Loops through the results
+                while (resultSet.next()) {
+
+                    String productID = resultSet.getString("ProductID");
+                    String productName = resultSet.getString("ProductName");
+                    double unitPrice = resultSet.getDouble("UnitPrice");
+                    scanner.nextLine();
+                    int unitsInStock = resultSet.getInt("UnitsInStock");
+                    scanner.nextLine();
+
+                    System.out.printf("%-27s %-35s %-14d %-10f%n", productID, productName, unitPrice, unitsInStock);
+                }
+            }
+
+            else {
                 return;
             }
 
