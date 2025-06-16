@@ -8,6 +8,9 @@ public class Main {
 
         try {
 
+            String username = args[0];
+            String password = args[1];
+
             // load the MySQL Driver
             Class.forName("com.mysql.cj.jdbc.Driver");
 
@@ -16,8 +19,8 @@ public class Main {
             Connection connection;
             connection = DriverManager.getConnection(
                     "jdbc:mysql://localhost:3306/northwind",
-                    "root",
-                    "Dingreen1108");
+                    username,
+                    password);
 
             // create statement
             // the statement is tied to the open connection
