@@ -50,177 +50,140 @@ public class Main {
                         "jdbc:mysql://localhost:3306/northwind", username, password);
             )
             {
-
-
-                try (
-                    PreparedStatement statement1;
-                    ResultSet resultSet1 = statement1.execute();
-
-                )
-                {
-                    // while
-                }
-
-                System.out.print("Please enter an employee name to search by ➤ ");
-
-                try (
-                    PreparedStatement statement2;
-                )
-                {
-                    // set parameter on statement
+                if (userChoice == 1) {
 
                     try (
-                        Resultset resultSet = statement2.executeQuery();
+                        // 2. Create preparedStatement for query
+                        PreparedStatement preparedStatement1 = connection.prepareStatement(
+                                "SELECT ProductID, ProductName, UnitPrice, UnitsInStock FROM Products"
+                        );
+
+                        // 3. Execute your query
+                        ResultSet resultSet1 = preparedStatement1.executeQuery();
                     )
                     {
-                        // while
+                        // Print header
+                        System.out.printf("%-11s %-35s %-11s %-14s%n", "ProductID", "ProductName", "UnitPrice", "UnitsInStock");
+                        System.out.println("---------   ---------------------------------   ----------  ----------------");
+
+                        // Loops through the results
+                        while (resultSet1.next()) {
+
+                            int productId = resultSet1.getInt("ProductID");
+                            String productName = resultSet1.getString("ProductName");
+                            double unitPrice = resultSet1.getDouble("UnitPrice");
+                            int unitsInStock = resultSet1.getInt("UnitsInStock");
+
+                            System.out.printf("%-11s %-35s %-11s %-14s%n", productId, productName, unitPrice, unitsInStock);
+                        }
                     }
                 }
 
-            }
+                else if (userChoice == 2) {
 
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+                    try (
+                        // 2. Create preparedStatement for query
+                        PreparedStatement preparedStatement2 = connection.prepareStatement(
+                                "SELECT ContactName, CompanyName, City, Country, Phone " +
+                                        "FROM Customers " +
+                                        "ORDER BY Country"
+                        );
 
-            catch (SQLException e) {
-                e.printStackTrace();
-            }
+                        // 3. Execute your query
+                        ResultSet resultSet2 = preparedStatement2.executeQuery();
+                    )
+                    {
+                        // Print header
+                        System.out.printf("%-27s %-35s %-21s %-14s %-10s%n", "ContactName", "CompanyName", "City", "Country", "Phone");
+                        System.out.println("-------------------------------------------------------------------------------------------------------------------------");
 
-            catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+                        // Loops through the results
+                        while (resultSet2.next()) {
 
-            if (userChoice == 1) {
+                            String contactName = resultSet2.getString("ContactName");
+                            String companyName = resultSet2.getString("CompanyName");
+                            String city = resultSet2.getString("City");
+                            String country = resultSet2.getString("Country");
+                            String phone = resultSet2.getString("Phone");
 
-                // 2. Create preparedStatement for query
-                preparedStatement = connection.prepareStatement(
-                        "SELECT ProductID, ProductName, UnitPrice, UnitsInStock FROM Products"
-                );
-
-                // 3. Execute your query
-                resultSet = preparedStatement.executeQuery();
-
-                // Print header
-                System.out.printf("%-11s %-35s %-11s %-14s%n", "ProductID", "ProductName", "UnitPrice", "UnitsInStock");
-                System.out.println("---------   ---------------------------------   ----------  ----------------");
-
-                // Loops through the results
-                while (resultSet.next()) {
-
-                    int productId = resultSet.getInt("ProductID");
-                    String productName = resultSet.getString("ProductName");
-                    double unitPrice = resultSet.getDouble("UnitPrice");
-                    int unitsInStock = resultSet.getInt("UnitsInStock");
-
-                    System.out.printf("%-11s %-35s %-11s %-14s%n", productId, productName, unitPrice, unitsInStock);
+                            System.out.printf("%-27s %-35s %-21s %-14s %-10s%n", contactName, companyName, city, country, phone);
+                        }
+                    }
                 }
 
-            } else if (userChoice == 2) {
+                else if (userChoice == 3) {
+                    // DISPLAYS TO USER ALL CATEGORIES BY ID AND NAME
+                    try (
 
-                // 2. Create preparedStatement for query
-                preparedStatement = connection.prepareStatement(
-                        "SELECT ContactName, CompanyName, City, Country, Phone " +
-                                "FROM Customers " +
-                                "ORDER BY Country"
-                );
+                            // Creates preparedStatement for query
+                            PreparedStatement preparedStatement3a = connection.prepareStatement(
+                                    "SELECT CategoryID, CategoryName " +
+                                            "FROM Categories " +
+                                            "ORDER BY CategoryID");
 
-                // 3. Execute your query
-                resultSet = preparedStatement.executeQuery();
+                            // Gets result set of the query
+                            ResultSet resultSet3a = preparedStatement3a.executeQuery();
+                    ) {
+                        // Print header
+                        System.out.printf("%-27s %-35s%n", "Category ID", "Category Name");
+                        System.out.println("-------------------------------------------------------------------------------------------------------------------------");
 
-                // Print header
-                System.out.printf("%-27s %-35s %-21s %-14s %-10s%n", "ContactName", "CompanyName", "City", "Country", "Phone");
-                System.out.println("-------------------------------------------------------------------------------------------------------------------------");
+                        // Loops through the results
+                        while (resultSet3a.next()) {
 
-                // Loops through the results
-                while (resultSet.next()) {
+                            String categoryID = resultSet3a.getString("CategoryID");
+                            String categoryName = resultSet3a.getString("CategoryName");
 
-                    String contactName = resultSet.getString("ContactName");
-                    String companyName = resultSet.getString("CompanyName");
-                    String city = resultSet.getString("City");
-                    String country = resultSet.getString("Country");
-                    String phone = resultSet.getString("Phone");
+                            System.out.printf("%-27s %-35s%n", categoryID, categoryName);
+                        }
+                    }
 
-                    System.out.printf("%-27s %-35s %-21s %-14s %-10s%n", contactName, companyName, city, country, phone);
+                    // PROMPTS USER FOR CATEGORY ID
+                    System.out.println();
+                    System.out.print("Please enter a category ID to filter products by ➤ ");
+                    String categoryIdInput = scanner.nextLine();
+                    System.out.println();
+
+                    // DISPLAYS TO USER PRODUCTS IN CHOSEN CATEGORY ID
+                    try (
+                            // Again, create preparedStatement for another query
+                            PreparedStatement preparedStatement3b = connection.prepareStatement(
+                                    "SELECT ProductID, ProductName, UnitPrice, UnitsInStock " +
+                                            "FROM Products " +
+                                            "WHERE CategoryID = ?"
+                            );
+                    ) {
+                        // Set parameter onto the statement
+                        preparedStatement3b.setString(1, categoryIdInput);
+
+                        try (
+                            // Executes query
+                            ResultSet resultSet3b = preparedStatement3b.executeQuery();
+                        ) {
+
+                            // Print header
+                            System.out.printf("%-27s %-35s %-21s %-14s%n", "ProductID", "ProductName", "UnitPrice", "UnitsInStock");
+                            System.out.println("-------------------------------------------------------------------------------------------------------------------------");
+
+                            // Loops through the results
+                            while (resultSet3b.next()) {
+
+                                String productID = resultSet3b.getString("ProductID");
+                                String productName = resultSet3b.getString("ProductName");
+                                double unitPrice = resultSet3b.getDouble("UnitPrice");
+                                int unitsInStock = resultSet3b.getInt("UnitsInStock");
+
+                                System.out.printf("%-27s %-35s %-14f %-10d%n", productID, productName, unitPrice, unitsInStock);
+                            }
+                        }
+                    }
                 }
-            }
-
-            else if (userChoice == 3) {
-
-                // 2. Create preparedStatement for query
-                preparedStatement = connection.prepareStatement(
-                        "SELECT CategoryID, CategoryName " +
-                                "FROM Categories " +
-                                "ORDER BY CategoryID"
-                );
-
-                System.out.print("Which category ID would you like to view? ➤ ");
-                int userIDinput = scanner.nextInt();
-                scanner.nextLine();
-
-                // 2. Again, create preparedStatement for another query
-                preparedStatement = connection.prepareStatement(
-                        "SELECT ProductID, ProductName, UnitPrice, UnitsInStock " +
-                                "FROM Products " +
-                                "WHERE CategoryID = ?"
-                );
-
-                preparedStatement.setString(1, userIDinput);
-
-                // 3. Execute your query
-                resultSet = preparedStatement.executeQuery();
-
-                // Print header
-                System.out.printf("%-27s %-35s %-21s %-14s%n", "ProductID", "ProductName", "UnitPrice", "UnitsInStock");
-                System.out.println("-------------------------------------------------------------------------------------------------------------------------");
-
-                // Loops through the results
-                while (resultSet.next()) {
-
-                    String productID = resultSet.getString("ProductID");
-                    String productName = resultSet.getString("ProductName");
-                    double unitPrice = resultSet.getDouble("UnitPrice");
-                    scanner.nextLine();
-                    int unitsInStock = resultSet.getInt("UnitsInStock");
-                    scanner.nextLine();
-
-                    System.out.printf("%-27s %-35s %-14d %-10f%n", productID, productName, unitPrice, unitsInStock);
-                }
-            }
-
-            else {
-                return;
             }
 
         }
 
         catch (SQLException e) {
             e.printStackTrace();
-        }
-
-        finally {
-            // 3. Closes the resources
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 }
